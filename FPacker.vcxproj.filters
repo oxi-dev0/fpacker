@@ -12,12 +12,12 @@
     <ClInclude Include="include\fjoiner.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\fjoiner.h">
+    <ClInclude Include="src\fpacker.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\fjoiner.cpp">
+    <ClCompile Include="src\fpacker.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

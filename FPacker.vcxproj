@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D20DDEC4-3EED-5C60-4705-E836B363C3C1}</ProjectGuid>
+    <ProjectGuid>{8153DCD1-ED32-5B6D-F64A-E64362A9C1CE}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>FJoiner</RootNamespace>
+    <RootNamespace>FPacker</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -43,13 +43,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>bin\Debug\</OutDir>
     <IntDir>bin-int\Debug\</IntDir>
-    <TargetName>fjoiner-d</TargetName>
+    <TargetName>fpacker-d</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>bin\Release\</OutDir>
     <IntDir>bin-int\Release\</IntDir>
-    <TargetName>fjoiner</TargetName>
+    <TargetName>fpacker</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -91,10 +91,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\fjoiner.h" />
-    <ClInclude Include="src\fjoiner.h" />
+    <ClInclude Include="src\fpacker.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\fjoiner.cpp" />
+    <ClCompile Include="src\fpacker.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

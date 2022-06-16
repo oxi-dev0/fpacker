@@ -1,2 +1,2 @@
-# fjoiner
- A simple library to join a directory into a single file
+# fpacker
+ A simple library to package a directory into a single file

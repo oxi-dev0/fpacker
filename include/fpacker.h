@@ -19,7 +19,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace FJoiner
+namespace FPacker
 {
 	class Package {
 	protected:

@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Oxi. All rights reserved.
-#include "fjoiner.h"
+#include "fpacker.h"
 
-namespace FJoiner
+namespace FPacker
 {
 	std::stringstream VectorToString(std::vector<char> charVec) {
 		std::stringstream s;
@@ -13,13 +13,13 @@ namespace FJoiner
 
 	std::string IntToPaddedBinary(int i) {
 		char buf[50];
-		sprintf(buf, "%032x", i);
+		sprintf_s(buf, "%032x", i);
 		return std::string(buf);
 	}
 
 	int PaddedBinaryToInt(std::string s) {
 		int i = 0;
-		sscanf(s.c_str(), "%032x", &i);
+		sscanf_s(s.c_str(), "%032x", &i);
 		return i;
 	}
 
@@ -73,7 +73,7 @@ namespace FJoiner
 			char sizeBuf[FJOINER_SIZEMARKER_LENGTH] = { FJOINER_SIZEMARKER };
 			fileStream.write(sizeBuf, FJOINER_SIZEMARKER_LENGTH);
 
-			std::string s = IntToPaddedBinary(buf.size());
+			std::string s = IntToPaddedBinary((int)buf.size());
 			fileStream.write(s.c_str(), 32);
 
 			char fileBuf[FJOINER_FILEMARKER_LENGTH] = { FJOINER_FILEMARKER };
@@ -128,7 +128,7 @@ namespace FJoiner
 		assert(fileBuf.size() > FJOINER_HEADER_LENGTH, "FJoiner: File is valid length");
 		assert(ValidPackage(fileBuf), "FJoiner: File is valid package file");
 
-		int cursor = FJOINER_HEADER_LENGTH;
+		unsigned int cursor = FJOINER_HEADER_LENGTH;
 		std::vector<char> nameBuf;
 		std::vector<char> sizeBuf;
 		uint32_t size = 0;
@@ -139,7 +139,7 @@ namespace FJoiner
 			switch (section) {
 			case 2: // data section
 			{
-				for (int cur = cursor; cur < cursor + size; cur++) {
+				for (unsigned int cur = cursor; cur < cursor + size; cur++) {
 					dataBuf.emplace_back(fileBuf[cur]);
 				}
 				if (nameBuf.size() > 0 && dataBuf.size() > 0) {

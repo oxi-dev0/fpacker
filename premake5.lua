@@ -1,4 +1,4 @@
-workspace "FJoiner"
+workspace "FPacker"
 	architecture "x64"
 	flags {"MultiProcessorCompile"}
 
@@ -12,7 +12,7 @@ outputdir = "%{cfg.buildcfg}"
 
 include "example"
 
-project "FJoiner"
+project "FPacker"
 	kind "StaticLib"
 	language "C++"
 
@@ -37,11 +37,11 @@ project "FJoiner"
 		symbols "On"
 		staticruntime "on"
 		runtime "Debug"
-		targetname "fjoiner-d"
+		targetname "fpacker-d"
 
 	filter "configurations:Release"
 		defines "RELEASE"
 		optimize "On"
 		staticruntime "on"
 		runtime "Release"
-		targetname "fjoiner"
+		targetname "fpacker"

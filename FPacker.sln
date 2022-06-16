@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example", "example\Example.vcxproj", "{D10136E2-3DE1-B47D-46F9-3F54B2571BDF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FJoiner", "FJoiner.vcxproj", "{D20DDEC4-3EED-5C60-4705-E836B363C3C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FPacker", "FPacker.vcxproj", "{8153DCD1-ED32-5B6D-F64A-E64362A9C1CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +15,10 @@ Global
 		{D10136E2-3DE1-B47D-46F9-3F54B2571BDF}.Debug|x64.Build.0 = Debug|x64
 		{D10136E2-3DE1-B47D-46F9-3F54B2571BDF}.Release|x64.ActiveCfg = Release|x64
 		{D10136E2-3DE1-B47D-46F9-3F54B2571BDF}.Release|x64.Build.0 = Release|x64
-		{D20DDEC4-3EED-5C60-4705-E836B363C3C1}.Debug|x64.ActiveCfg = Debug|x64
-		{D20DDEC4-3EED-5C60-4705-E836B363C3C1}.Debug|x64.Build.0 = Debug|x64
-		{D20DDEC4-3EED-5C60-4705-E836B363C3C1}.Release|x64.ActiveCfg = Release|x64
-		{D20DDEC4-3EED-5C60-4705-E836B363C3C1}.Release|x64.Build.0 = Release|x64
+		{8153DCD1-ED32-5B6D-F64A-E64362A9C1CE}.Debug|x64.ActiveCfg = Debug|x64
+		{8153DCD1-ED32-5B6D-F64A-E64362A9C1CE}.Debug|x64.Build.0 = Debug|x64
+		{8153DCD1-ED32-5B6D-F64A-E64362A9C1CE}.Release|x64.ActiveCfg = Release|x64
+		{8153DCD1-ED32-5B6D-F64A-E64362A9C1CE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

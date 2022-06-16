@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 
-#include <fjoiner.h>
+#include <fpacker.h>
 
 int main(int argc, char** argv)
 {
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
         std::cout << "Packing 'examplefolder/' to 'examplefile.fjpkg'" << std::endl;
         auto start = std::chrono::high_resolution_clock::now();
 
-        auto Package = FJoiner::Package::LoadDir("examplefolder");
+        auto Package = FPacker::Package::LoadDir("examplefolder");
         Package.Pack("examplefile.fjpkg");
 
         auto end = std::chrono::high_resolution_clock::now();
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
             std::cout << "Unpacking 'examplefile.fjpkg' to 'unpackedFolder/'" << std::endl;
             auto start = std::chrono::high_resolution_clock::now();
 
-            auto Package = FJoiner::Package::LoadPackageFile("examplefile.fjpkg");
+            auto Package = FPacker::Package::LoadPackageFile("examplefile.fjpkg");
             Package.Unpack("unpackedFolder");
 
             auto end = std::chrono::high_resolution_clock::now();

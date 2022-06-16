@@ -30,11 +30,11 @@ project "Example"
 		symbols "On"
 		staticruntime "on"
 		runtime "Debug"
-		links { "fjoiner-d.lib" }
+		links { "fpacker-d.lib" }
 
 	filter "configurations:Release"
 		defines "RELEASE"
 		optimize "On"
 		staticruntime "on"
 		runtime "Release"
-		links { "fjoiner.lib" }
+		links { "fpacker.lib" }
