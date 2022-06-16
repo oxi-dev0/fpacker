@@ -12,7 +12,7 @@
 </p>
 
 <h3 align="center"> A small cross-platform c++ library for packing a directory into a single file </h3>
-<h6 align="center"> Please Note: This will not compress the files, simply organise them within a binary file. </h6>
+<h6 align="center"> Please Note: This will not compress the files, it just organises them within a binary file. </h6>
 <br>
 <h2> Documentation </h2>
 <h3> Usage </h3>
