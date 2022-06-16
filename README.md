@@ -1,2 +1,2 @@
 # fpacker
- A simple library to package a directory into a single file
+ A small c++ library to package a directory into a single file
