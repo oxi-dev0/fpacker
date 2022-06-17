@@ -52,10 +52,11 @@ namespace FPacker
 		fileStream.write(headerBuf, FPACKER_HEADER_LENGTH);
 
 		for (auto& path : foundFiles) {
-			char nameBuf[FPACKER_NAMEMARKER_LENGTH] = { FPACKER_NAMEMARKER };
-			fileStream.write(nameBuf, FPACKER_NAMEMARKER_LENGTH);
-
 			std::string pathStr = std::filesystem::relative(path, std::filesystem::path(fromDir)).string();
+
+			std::string pS = IntToPaddedBinary((int)pathStr.size());
+			fileStream.write(pS.c_str(), 32);
+
 			fileStream.write(pathStr.c_str(), strlen(pathStr.c_str()));
 
 			std::vector<char> buf;
@@ -66,14 +67,8 @@ namespace FPacker
 				buf.emplace_back(c);
 			}
 
-			char sizeBuf[FPACKER_SIZEMARKER_LENGTH] = { FPACKER_SIZEMARKER };
-			fileStream.write(sizeBuf, FPACKER_SIZEMARKER_LENGTH);
-
 			std::string s = IntToPaddedBinary((int)buf.size());
 			fileStream.write(s.c_str(), 32);
-
-			char fileBuf[FPACKER_FILEMARKER_LENGTH] = { FPACKER_FILEMARKER };
-			fileStream.write(fileBuf, FPACKER_FILEMARKER_LENGTH);
 
 			for (char d : buf) {
 				char cbuf[1] = { d };
@@ -126,16 +121,18 @@ namespace FPacker
 
 		unsigned int cursor = FPACKER_HEADER_LENGTH;
 		std::vector<char> nameBuf;
-		std::vector<char> sizeBuf;
-		uint32_t size = 0;
+		std::vector<char> nameSizeBuf;
+		uint32_t nameSize = 0;
 		std::vector<char> dataBuf;
-		int section = 2; // 0: name, 1: size, 2: data
+		std::vector<char> dataSizeBuf;
+		uint32_t dataSize = 0;
+		int section = 0; // 0: nameSize, 1: name, 2: dataSize, 3: data
 
 		while (cursor < fileBuf.size()) {
 			switch (section) {
-			case 2: // data section
+			case 3: // data section
 			{
-				for (unsigned int cur = cursor; cur < cursor + size; cur++) {
+				for (unsigned int cur = cursor; cur < cursor + dataSize; cur++) {
 					dataBuf.emplace_back(fileBuf[cur]);
 				}
 				if (nameBuf.size() > 0 && dataBuf.size() > 0) {
@@ -149,42 +146,49 @@ namespace FPacker
 				}
 
 				nameBuf.clear();
-				cursor += size + FPACKER_NAMEMARKER_LENGTH;
+				nameSizeBuf.clear();
+				cursor += dataSize;
 
 				section = 0;
 				continue;
 			} break;
-			case 1: // size section
+			case 2: // data size section
 			{
-				if (LookaheadMatch(fileBuf, cursor, { FPACKER_FILEMARKER })) {
-					size = PaddedBinaryToInt(VectorToString(sizeBuf).str());
+				for (unsigned int cur = cursor; cur < cursor + 32; cur++) {
+					dataSizeBuf.emplace_back(fileBuf[cur]);
+				}
 
-					section = 2;
-					cursor += FPACKER_FILEMARKER_LENGTH;
-					continue;
-				}
-				else {
-					sizeBuf.emplace_back(fileBuf[cursor]);
-					cursor += 1;
-					continue;
-				}
+				dataSize = PaddedBinaryToInt(VectorToString(dataSizeBuf).str());
+
+				section = 3;
+				cursor += 32;
+				continue;
 
 			} break;
-			case 0: // name section
+			case 1: // name section
 			{
-				if (LookaheadMatch(fileBuf, cursor, { FPACKER_SIZEMARKER })) {
-					sizeBuf.clear();
-					dataBuf.clear();
+				for (unsigned int cur = cursor; cur < cursor + nameSize; cur++) {
+					nameBuf.emplace_back(fileBuf[cur]);
+				}
+				
+				dataSizeBuf.clear();
+				dataBuf.clear();
 
-					section = 1;
-					cursor += FPACKER_SIZEMARKER_LENGTH;
-					continue;
+				section = 2;
+				cursor += nameSize;
+				continue;
+			} break;
+			case 0: // name size section
+			{
+				for (unsigned int cur = cursor; cur < cursor + 32; cur++) {
+					nameSizeBuf.emplace_back(fileBuf[cur]);
 				}
-				else {
-					nameBuf.emplace_back(fileBuf[cursor]);
-					cursor += 1;
-					continue;
-				}
+
+				nameSize = PaddedBinaryToInt(VectorToString(nameSizeBuf).str());
+
+				section = 1;
+				cursor += 32;
+				continue;
 			} break;
 			}
 		}
