@@ -17,7 +17,7 @@
 <h2> Documentation </h2>
 <h3> Usage </h3>
 
-First, download the static libraries from the [Release](https://github.com/oxi-dev0/fpacker/releases/tag/v1.0) page. Inside your project, include the header from `include/`, and depending on what configuration you are building your project in, you should link either `x64/Release/fpacker.lib` for release mode, or `x64/Debug/fpacker-d.lib` for debug mode.
+First, download the static libraries from the [Release](https://github.com/oxi-dev0/fpacker/releases/) page. Inside your project, include the header from `include/`, and depending on what configuration you are building your project in, you should link either `x64/Release/fpacker.lib` for release mode, or `x64/Debug/fpacker-d.lib` for debug mode.
 
 See [example/src/main.cpp](https://github.com/oxi-dev0/fpacker/blob/main/example/src/main.cpp) for a demonstration on how to use the library.
 
