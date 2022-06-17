@@ -45,7 +45,9 @@ namespace FPacker
 			}
 		}
 
-		assert(foundFiles.size() > 0, "FPacker: The directory has files");
+		if (foundFiles.size() == 0) {
+			return false;
+		}
 
 		std::ofstream fileStream(targetFile, std::ios::out | std::ios::binary);
 		char headerBuf[FPACKER_HEADER_LENGTH] = { FPACKER_HEADER };
