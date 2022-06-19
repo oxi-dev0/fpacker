@@ -13,13 +13,13 @@ namespace FPacker
 
 	std::string IntToPaddedBinary(int i) {
 		char buf[50];
-		sprintf_s(buf, "%032x", i);
+		sprintf(buf, "%032x", i);
 		return std::string(buf);
 	}
 
 	int PaddedBinaryToInt(std::string s) {
 		int i = 0;
-		sscanf_s(s.c_str(), "%032x", &i);
+		sscanf(s.c_str(), "%032x", &i);
 		return i;
 	}
 
@@ -36,7 +36,7 @@ namespace FPacker
 	}
 
 	bool Package::Pack(std::string targetFile) {
-		assert(fromDir != "", "FPacker: From directory is set");
+		assert(fromDir != "");
 
 		std::vector<std::filesystem::path> foundFiles;
 		for (std::filesystem::recursive_directory_iterator i(fromDir), end; i != end; ++i) {
@@ -107,7 +107,7 @@ namespace FPacker
 	}
 
 	bool Package::Unpack(std::string targetDir) {
-		assert(fromFile != "", "FPacker: From file is set");
+		assert(fromFile != "");
 
 		std::vector<char> fileBuf;
 
@@ -118,8 +118,8 @@ namespace FPacker
 			fileBuf.push_back(c);
 		}
 
-		assert(fileBuf.size() > FPACKER_HEADER_LENGTH, "FPacker: File is valid length");
-		assert(ValidPackage(fileBuf), "FPacker: File is valid package file");
+		assert(fileBuf.size() > FPACKER_HEADER_LENGTH);
+		assert(ValidPackage(fileBuf));
 
 		unsigned int cursor = FPACKER_HEADER_LENGTH;
 		std::vector<char> nameBuf;
