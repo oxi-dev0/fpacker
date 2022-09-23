@@ -8,14 +8,14 @@ int main(int argc, char** argv)
     // --------- Basic Functionality ---------
     // 
     // -- Load the target directory into a Package object --
-    // auto Package = FJoiner::Package::LoadDir("examplefolder");
+    // auto Package = FPacker::Package::LoadDir("examplefolder");
     // 
     // -- Pack this package into a file. The file extension doesnt matter. --
     // Package.Pack("examplefile.fjpkg");
     // 
     // 
     // -- Load the package file into a new Package object --
-    // Package = FJoiner::Package::LoadPackageFile("examplefile.fjpkg");
+    // Package = FPacker::Package::LoadPackageFile("examplefile.fjpkg");
     // 
     // -- Unpack this package into a directory. --
     // Package.Unpack("unpackedFolder");
