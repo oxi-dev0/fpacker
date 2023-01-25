@@ -20,7 +20,13 @@
 After learning more C++ on other projects, I decided to revisit FPacker to completely revamp it. The 1.0 version was very hacked together, as I was still quite new to the language. The 2.0 release fixes all of the issues the previous versions had (block sizes were written as strings, not binary numbers, to name an example), and fixes the module interface to be intuitive and more efficient to use.
 This new update also improves the speed of the library by around 10x, as it skips all the unnecessary conversions and improper types that I used to create the 1.0 version.
 
-[performance images]
+<h3> Speed Comparison (Test directory is not changed) </h3>
+<h5> V1.1.1 </h5>
+<img src="https://github.com/oxi-dev0/fpacker/blob/v2.0.0/imgs/v1.1.1-benchmark-2146kb-release.png" style="width:50%;">
+<h5> V2.0.0 </h5>
+<img src="https://github.com/oxi-dev0/fpacker/blob/v2.0.0/imgs/v2.0.0-benchmark-2145kb-release.png" style="width:50%;">
+
+<h3> Future </h3>
 
 It is unlikely that I will be revisiting this library, but I hope it helps someone quickly implement packing files.
 
