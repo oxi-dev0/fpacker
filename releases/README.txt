@@ -1,1 +1,0 @@
-PLEASE NOTE: These are the old releases, and they were a static library. They are slow and inefficient, do not use them over v2.0.0.
