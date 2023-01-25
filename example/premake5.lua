@@ -1,10 +1,20 @@
 outputdir = "%{cfg.buildcfg}"
 
+workspace "FPacker-Example"
+	architecture "x64"
+	flags {"MultiProcessorCompile"}
+
+	configurations 
+	{
+		"Debug", 
+		"Release"
+	}
+
+outputdir = "%{cfg.buildcfg}"
+
 project "Example"
 	kind "ConsoleApp"
 	language "C++"
-	
-	dependson "FPacker"
 
 	targetdir ("bin/" .. outputdir)
 	objdir ("bin-int/" .. outputdir)
@@ -20,13 +30,10 @@ project "Example"
 	{
 		"../src"
 	}
-
 		
 	postbuildcommands {
 		"{COPY} examplefolder bin/"..outputdir.."/examplefolder"
 	}
-
-	libdirs { "../bin/" .. outputdir}
 
 	filter "system:windows"
 		cppdialect "C++20"
@@ -37,11 +44,9 @@ project "Example"
 		symbols "On"
 		staticruntime "on"
 		runtime "Debug"
-		links { "fpacker-d.lib" }
 
 	filter "configurations:Release"
 		defines "RELEASE"
 		optimize "On"
 		staticruntime "on"
 		runtime "Release"
-		links { "fpacker.lib" }
