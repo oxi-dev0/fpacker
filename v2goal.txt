@@ -1,0 +1,18 @@
+1. Benchmark v1.1.1
+2. Rewrite completely with new knowledge of binary manipulation, memory management etc
+3. Rewrite API to be more intuitive
+4. Benchmark new version and compare
+5. Release
+
+Major Issues with old version:
+section lengths are stored in utf-8 representations of the numbers (what???)
+using std::vector to store binary sequence (again, what???)
+writing unpacked files byte by byte (whyyyy)
+
+All of these issues are slow work arounds to things i didnt understand how to fix, but now i have practised with other projects and know what to do.
+
+Todo for rewrite:
+write actual binary numbers rather than strings
+use blocks of heap to assemble data and single write to packfile
+write entire data to unpacked files in one call
+Should see massive improvement in perf
