@@ -3,6 +3,8 @@ outputdir = "%{cfg.buildcfg}"
 project "Example"
 	kind "ConsoleApp"
 	language "C++"
+	
+	dependson "FPacker"
 
 	targetdir ("bin/" .. outputdir)
 	objdir ("bin-int/" .. outputdir)
@@ -16,7 +18,12 @@ project "Example"
 
 	includedirs
 	{
-		"../include"
+		"../src"
+	}
+
+		
+	postbuildcommands {
+		"{COPY} examplefolder bin/"..outputdir.."/examplefolder"
 	}
 
 	libdirs { "../bin/" .. outputdir}

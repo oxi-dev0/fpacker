@@ -3,41 +3,7 @@
 
 namespace FPacker
 {
-	std::stringstream VectorToString(std::vector<char> charVec) {
-		std::stringstream s;
-		for (char c : charVec) {
-			s << c;
-		}
-		return s;
-	}
-
-	std::string IntToPaddedBinary(int i) {
-		char buf[50];
-		sprintf(buf, "%032x", i);
-		return std::string(buf);
-	}
-
-	int PaddedBinaryToInt(std::string s) {
-		int i = 0;
-		sscanf(s.c_str(), "%032x", &i);
-		return i;
-	}
-
-	Package Package::LoadDir(std::string dir) {
-		Package newPackage;
-		newPackage.fromDir = dir;
-		return newPackage;
-	}
-
-	Package Package::LoadPackageFile(std::string file) {
-		Package newPackage;
-		newPackage.fromFile = file;
-		return newPackage;
-	}
-
-	bool Package::Pack(std::string targetFile) {
-		assert(fromDir != "");
-
+	bool Pack(const std::string& fromDir, const std::string& toFile) {
 		std::vector<std::filesystem::path> foundFiles;
 		for (std::filesystem::recursive_directory_iterator i(fromDir), end; i != end; ++i) {
 			if (!is_directory(i->path())) {
@@ -49,41 +15,74 @@ namespace FPacker
 			return false;
 		}
 
-		std::ofstream fileStream(targetFile, std::ios::out | std::ios::binary);
+		char* buffer = (char*)malloc(BUFFERSIZE_MIN);
+		if (buffer == nullptr) { return false; }
+
+		size_t bufferSize = BUFFERSIZE_MIN;
+		size_t initialBufferSize = BUFFERSIZE_MIN;
+		size_t bufferCursor = 0;
+
 		char headerBuf[FPACKER_HEADER_LENGTH] = { FPACKER_HEADER };
-		fileStream.write(headerBuf, FPACKER_HEADER_LENGTH);
+		for (size_t i = 0; i < FPACKER_HEADER_LENGTH; i++) {
+			memcpy(buffer + bufferCursor, &headerBuf[i], 1);
+			bufferCursor += 1;
+		}
 
 		for (auto& path : foundFiles) {
 			std::string pathStr = std::filesystem::relative(path, std::filesystem::path(fromDir)).string();
+			size_t pathSize = pathStr.size();
 
-			std::string pS = IntToPaddedBinary((int)pathStr.size());
-			fileStream.write(pS.c_str(), 32);
+			size_t oldBufferSize = bufferSize;
+			while (bufferCursor + sizeof(size_t) + pathSize > bufferSize) {
+				bufferSize += initialBufferSize;
+			}
+			if (bufferSize != oldBufferSize) {
+				char* oldBuffer = buffer;
+				buffer = (char*)malloc(bufferSize);
+				if (buffer == nullptr) { return false; }
+				memcpy(buffer, oldBuffer, oldBufferSize);
+				free(oldBuffer);
+			}
+			memcpy(buffer + bufferCursor, &pathSize, sizeof(size_t));
+			bufferCursor += sizeof(size_t);
+			memcpy(buffer + bufferCursor, pathStr.c_str(), pathSize);
+			bufferCursor += pathSize;
 
-			fileStream.write(pathStr.c_str(), strlen(pathStr.c_str()));
-
-			std::vector<char> buf;
 			std::ifstream in(path.string().c_str(), std::ios::binary);
-			char c;
-			while (in.get(c))
-			{
-				buf.emplace_back(c);
-			}
+			std::streampos fsize = 0;
+			fsize = in.tellg();
+			in.seekg(0, std::ios::end);
+			fsize = in.tellg() - fsize;
+			in.seekg(0, std::ios::beg);
+			size_t fsizeVal = (size_t)fsize;
 
-			std::string s = IntToPaddedBinary((int)buf.size());
-			fileStream.write(s.c_str(), 32);
-
-			for (char d : buf) {
-				char cbuf[1] = { d };
-				fileStream.write(cbuf, 1);
+			oldBufferSize = bufferSize;
+			while (bufferCursor + sizeof(size_t) + fsizeVal > bufferSize) {
+				bufferSize += initialBufferSize;
 			}
+			if (bufferSize != oldBufferSize) {
+				char* oldBuffer = buffer;
+				buffer = (char*)malloc(bufferSize);
+				if (buffer == nullptr) { return false; }
+				memcpy(buffer, oldBuffer, oldBufferSize);
+				free(oldBuffer);
+			}
+			memcpy(buffer + bufferCursor, &fsizeVal, sizeof(size_t));
+			bufferCursor += sizeof(size_t);
+			in.read(buffer + bufferCursor, fsizeVal);
+			bufferCursor += fsizeVal;
 		}
 
+		std::ofstream fileStream(toFile, std::ios::out | std::ios::binary);
+		fileStream.write(buffer, bufferCursor);
 		fileStream.close();
+
+		free(buffer);
 
 		return true;
 	}
 
-	bool Package::ValidPackage(std::vector<char> buf) {
+	bool _ValidPackage(char* buf) {
 		bool valid = true;
 
 		char headerBuf[FPACKER_HEADER_LENGTH] = { FPACKER_HEADER };
@@ -96,114 +95,58 @@ namespace FPacker
 		return valid;
 	}
 
-	bool Package::LookaheadMatch(std::vector<char> buf, int cursor, std::vector<char> seq) {
-		if (seq.size() + cursor >= buf.size()) { return false; }
-		if (buf[cursor] != seq[0]) { return false; }
-		for (int i = cursor; i < seq.size()+cursor; i++) {
-			if (buf[i] != seq[i - cursor]) { return false; }
-		}
-
-		return true;
-	}
-
-	bool Package::Unpack(std::string targetDir) {
-		assert(fromFile != "");
-
-		std::vector<char> fileBuf;
-
+	bool Unpack(const std::string& fromFile, const std::string& toDir) {
 		std::ifstream in(fromFile.c_str(), std::ios::binary);
-		char c;
-		while (in.get(c))
-		{
-			fileBuf.push_back(c);
+		std::streampos fsize = 0;
+		fsize = in.tellg();
+		in.seekg(0, std::ios::end);
+		fsize = in.tellg() - fsize;
+		in.seekg(0, std::ios::beg);
+		size_t fsizeVal = (size_t)fsize;
+		
+		char* fileBuf = (char*)malloc(fsizeVal);
+		if (fileBuf == nullptr) { return false; }
+
+		in.read(fileBuf, fsizeVal);
+		in.close();
+
+		assert(fsizeVal > FPACKER_HEADER_LENGTH);
+		assert(_ValidPackage(fileBuf));
+
+		size_t cursor = FPACKER_HEADER_LENGTH;
+		while (cursor < fsizeVal) {
+			size_t nameSize = 0;
+			memcpy(&nameSize, fileBuf + cursor, sizeof(size_t));
+			cursor += sizeof(size_t);
+
+			char* nameBuf = (char*)malloc(nameSize+1);
+			if (nameBuf == nullptr) { return false; }
+
+			memcpy(nameBuf, fileBuf + cursor, nameSize);
+			nameBuf[nameSize] = '\0';
+			cursor += nameSize;
+
+			size_t dataSize = 0;
+			memcpy(&dataSize, fileBuf + cursor, sizeof(size_t));
+			cursor += sizeof(size_t);
+
+			char* dataBuf = (char*)malloc(dataSize);
+			if (dataBuf == nullptr) { return false; }
+
+			memcpy(dataBuf, fileBuf + cursor, dataSize);
+			cursor += dataSize;
+
+			std::string nameStr = std::string(nameBuf);
+			std::filesystem::create_directories(std::filesystem::path(toDir + "/" + nameStr).remove_filename());
+			std::ofstream newFileStream(toDir + "/" + nameStr, std::ios::out | std::ios::binary);
+			newFileStream.write(dataBuf, dataSize);
+			newFileStream.close();
+
+			free(nameBuf);
+			free(dataBuf);
 		}
-
-		assert(fileBuf.size() > FPACKER_HEADER_LENGTH);
-		assert(ValidPackage(fileBuf));
-
-		unsigned int cursor = FPACKER_HEADER_LENGTH;
-		std::vector<char> nameBuf;
-		std::vector<char> nameSizeBuf;
-		uint32_t nameSize = 0;
-		std::vector<char> dataBuf;
-		std::vector<char> dataSizeBuf;
-		uint32_t dataSize = 0;
-		int section = 0; // 0: nameSize, 1: name, 2: dataSize, 3: data
-
-		while (cursor < fileBuf.size()) {
-			switch (section) {
-			case 3: // data section
-			{
-				for (unsigned int cur = cursor; cur < cursor + dataSize; cur++) {
-					dataBuf.emplace_back(fileBuf[cur]);
-				}
-				if (nameBuf.size() > 0 && dataBuf.size() > 0) {
-					std::filesystem::create_directories(std::filesystem::path(targetDir + "/" + VectorToString(nameBuf).str()).remove_filename());
-					std::ofstream fileStream(targetDir + "/" + VectorToString(nameBuf).str(), std::ios::out | std::ios::binary);
-					for (auto c : dataBuf) {
-						char cBuf[1] = { c };
-						fileStream.write(cBuf, 1);
-					}
-					fileStream.close();
-				}
-
-				nameBuf.clear();
-				nameSizeBuf.clear();
-				cursor += dataSize;
-
-				section = 0;
-				continue;
-			} break;
-			case 2: // data size section
-			{
-				for (unsigned int cur = cursor; cur < cursor + 32; cur++) {
-					dataSizeBuf.emplace_back(fileBuf[cur]);
-				}
-
-				dataSize = PaddedBinaryToInt(VectorToString(dataSizeBuf).str());
-
-				section = 3;
-				cursor += 32;
-				continue;
-
-			} break;
-			case 1: // name section
-			{
-				for (unsigned int cur = cursor; cur < cursor + nameSize; cur++) {
-					nameBuf.emplace_back(fileBuf[cur]);
-				}
-				
-				dataSizeBuf.clear();
-				dataBuf.clear();
-
-				section = 2;
-				cursor += nameSize;
-				continue;
-			} break;
-			case 0: // name size section
-			{
-				for (unsigned int cur = cursor; cur < cursor + 32; cur++) {
-					nameSizeBuf.emplace_back(fileBuf[cur]);
-				}
-
-				nameSize = PaddedBinaryToInt(VectorToString(nameSizeBuf).str());
-
-				section = 1;
-				cursor += 32;
-				continue;
-			} break;
-			}
-		}
-
-		if (nameBuf.size() > 0 && dataBuf.size() > 0) {
-			std::filesystem::create_directories(std::filesystem::path(targetDir + "/" + VectorToString(nameBuf).str()).remove_filename());
-			std::ofstream fileStream(targetDir + "/" + VectorToString(nameBuf).str(), std::ios::out | std::ios::binary);
-			for (auto c : dataBuf) {
-				char cBuf[1] = { c };
-				fileStream.write(cBuf, 1);
-			}
-			fileStream.close();
-		}
+		
+		free(fileBuf);
 
 		return true;
 	}

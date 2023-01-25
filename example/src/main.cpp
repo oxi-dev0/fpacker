@@ -39,8 +39,7 @@ int main(int argc, char** argv)
         std::cout << "Packing '" << targetFolder << "' to '" << targetFile << "'" << std::endl;
         auto start = std::chrono::high_resolution_clock::now();
 
-        auto Package = FPacker::Package::LoadDir(targetFolder);
-        Package.Pack(targetFile);
+        FPacker::Pack(targetFolder, targetFile);
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -61,8 +60,7 @@ int main(int argc, char** argv)
             std::cout << "Unpacking '" << targetFile << "' to '" << targetFolder << "'" << std::endl;
             auto start = std::chrono::high_resolution_clock::now();
 
-            auto Package = FPacker::Package::LoadPackageFile(targetFile);
-            Package.Unpack(targetFolder);
+            FPacker::Unpack(targetFile, targetFolder);
 
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

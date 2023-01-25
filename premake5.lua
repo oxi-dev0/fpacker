@@ -16,7 +16,6 @@ project "FPacker"
 	kind "StaticLib"
 	language "C++"
 
-
 	targetdir ("bin/" .. outputdir)
 	objdir ("bin-int/" .. outputdir)
 	debugdir "%{cfg.targetdir}"
