@@ -24,8 +24,8 @@ namespace FPacker
 		static bool LookaheadMatch(std::vector<char> buf, int cursor, std::vector<char> seq);
 
 	public:
-		static Package LoadDir(std::string dir);
-		static Package LoadPackageFile(std::string file);
+		static Package LoadDir(const std::string& dir);
+		static Package LoadPackageFile(const std::string& file);
 		
 		bool Pack(std::string targetFile);
 		bool Unpack(std::string targetDir);

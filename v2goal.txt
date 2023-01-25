@@ -1,0 +1,5 @@
+1. Benchmark v1.1.1
+2. Rewrite completely with new knowledge of binary manipulation, memory management etc
+3. Rewrite API to be more intuitive
+4. Benchmark new version and compare
+5. Release
