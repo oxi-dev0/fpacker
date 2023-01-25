@@ -1,25 +1,17 @@
 #include <iostream>
 #include <chrono>
 
-#include <fpacker.h>
+#include <fpacker.hpp>
 
 int main(int argc, char** argv)
 {
     // --------- Basic Functionality ---------
     // 
-    // -- Load the target directory into a Package object --
-    // auto Package = FPacker::Package::LoadDir("examplefolder");
+    // -- Pack a directory into a file. The target file extension doesnt matter --
+    // FPacker::Pack("examplefolder", "examplefile.fjpkg");
     // 
-    // -- Pack this package into a file. The file extension doesnt matter. --
-    // Package.Pack("examplefile.fjpkg");
-    // 
-    // 
-    // -- Load the package file into a new Package object --
-    // Package = FPacker::Package::LoadPackageFile("examplefile.fjpkg");
-    // 
-    // -- Unpack this package into a directory. --
-    // Package.Unpack("unpackedFolder");
-
+    // -- Unpack a file into a directory. --
+    // FPacker::Unpack("examplefile.fjpkg", "unpackedfolder");
 
 
     // --------- Example Console App ---------
@@ -39,8 +31,7 @@ int main(int argc, char** argv)
         std::cout << "Packing '" << targetFolder << "' to '" << targetFile << "'" << std::endl;
         auto start = std::chrono::high_resolution_clock::now();
 
-        auto Package = FPacker::Package::LoadDir(targetFolder);
-        Package.Pack(targetFile);
+        FPacker::Pack(targetFolder, targetFile);
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -61,8 +52,7 @@ int main(int argc, char** argv)
             std::cout << "Unpacking '" << targetFile << "' to '" << targetFolder << "'" << std::endl;
             auto start = std::chrono::high_resolution_clock::now();
 
-            auto Package = FPacker::Package::LoadPackageFile(targetFile);
-            Package.Unpack(targetFolder);
+            FPacker::Unpack(targetFile, targetFolder);
 
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
