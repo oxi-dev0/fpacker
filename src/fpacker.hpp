@@ -73,7 +73,7 @@ namespace FPacker
 				// Create a new, bigger, buffer and write old data to it
 				char* oldBuffer = buffer;
 				buffer = (char*)malloc(bufferSize);
-				if (buffer == nullptr) { return false; }
+				if (buffer == nullptr) { free(oldBuffer); return false; }
 				memcpy(buffer, oldBuffer, oldBufferSize);
 				free(oldBuffer);
 			}
@@ -102,7 +102,7 @@ namespace FPacker
 				// Create a new, bigger, buffer and write old data to it
 				char* oldBuffer = buffer;
 				buffer = (char*)malloc(bufferSize);
-				if (buffer == nullptr) { return false; }
+				if (buffer == nullptr) { free(oldBuffer); return false; }
 				memcpy(buffer, oldBuffer, oldBufferSize);
 				free(oldBuffer);
 			}
@@ -158,7 +158,7 @@ namespace FPacker
 
 			// Create a buffer for the name data
 			char* nameBuf = (char*)malloc(nameSize+1);
-			if (nameBuf == nullptr) { return false; }
+			if (nameBuf == nullptr) { free(fileBuf); return false; }
 
 			// Write the name data to the name buffer
 			memcpy(nameBuf, fileBuf + cursor, nameSize);
