@@ -143,8 +143,8 @@ namespace FPacker
 		in.close();
 		
 		// Validate it is an FPacker package
-		if (fsizeVal < FPACKER_HEADER_LENGTH) { return false; }
-		if (!_ValidPackage(fileBuf)) { return false; }
+		if (fsizeVal < FPACKER_HEADER_LENGTH) { free(fileBuf); return false; }
+		if (!_ValidPackage(fileBuf)) { free(fileBuf); return false; }
 
 		// Start cursor after magic number
 		size_t cursor = FPACKER_HEADER_LENGTH;
@@ -172,7 +172,7 @@ namespace FPacker
 
 			// Create a buffer for the data
 			char* dataBuf = (char*)malloc(dataSize);
-			if (dataBuf == nullptr) { return false; }
+			if (dataBuf == nullptr) { free(nameBuf); free(fileBuf); return false; }
 
 			// Write the data to the buffer
 			memcpy(dataBuf, fileBuf + cursor, dataSize);
