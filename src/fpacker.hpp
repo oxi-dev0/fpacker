@@ -1,4 +1,4 @@
-// FPACKER V2.0.0 [https://github.com/oxi-dev0/fpacker]
+// FPACKER V2.0.1 [https://github.com/oxi-dev0/fpacker]
 // Copyright (c) 2023 Oxi. All rights reserved.
 #pragma once
 
