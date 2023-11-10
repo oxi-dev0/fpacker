@@ -1,0 +1,29 @@
+Binary Format:
+[MagicNumber][VersionCode][Config][Data]
+	[MagicNumber] = 0x465041434B4552 (FPACKER)
+	[VersionCode] = Ma:Mi:Pa where Ma, Mi and Pa are the version number integers represented with one byte each
+	[Config] = [bool (encrypted)][VolumeCount][Volumes]
+		[VolumeCount] = int, 8 bytes, # volumes (0 if this is the only volume)
+		[Volumes] = (repeated)[VolumeNameSize][VolumeName]
+			[VolumeNameSize] = int, 8 bytes, length of name in characters
+			[VolumeName] = sequence of unicode chars (2 bytes per char)
+
+	[Data] = (potentially encrypted)[TreeSize][FileTree][CRC]
+		[TreeSize] = int, 8 bytes, length of tree in bytes
+		[FileTree] = (repeated)[DirNameSize][DirName][FileCount][Files][TreeCount][Trees]
+			[DirNameSize] = int, 8 bytes, length of dir name in characters
+			[DirName] = sequence of unicode chars (2 bytes per char), name relative to parent tree
+			[FileCount] = int, 8 bytes, number of files
+			[Files] = (repeated)[FileLength][File]
+				[FileLength] = int, 8 bytes, size of file in bytes
+				[File] = byte sequence for file
+			[TreeCount] = int, 8 bytes, number of sub trees
+			[Trees] = (repeated)[TreeSize][FileTree]
+		[CRC] = 
+
+Functionality:
+MagicNumber is used to verify file is a package
+VersionCode is used to verify the compatibility of the package
+Config specifies metadata about the package
+
+If the package is encrypted, the key is verified before extraction by checking the CRC of the decrypted TreeSize bytes against the decrypted CRC

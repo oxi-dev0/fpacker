@@ -1,4 +1,4 @@
-// FPACKER V2.0.1 [https://github.com/oxi-dev0/fpacker]
+// FPACKER V3.0.0 [https://github.com/oxi-dev0/fpacker]
 // Copyright (c) 2023 Oxi. All rights reserved.
 #pragma once
 
@@ -16,6 +16,16 @@
 
 namespace FPacker
 {
+	struct PackConfig {
+		bool encrypted{};
+		char** parts{};
+	};
+
+	enum class PackErrors {
+		ERROR_INVALID_KEY,
+		ERROR_PART_MISSING
+	};
+
 	inline bool _ValidPackage(char* buf)
 	{
 		bool valid = true;
