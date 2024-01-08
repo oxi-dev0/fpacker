@@ -1,4 +1,4 @@
-// FPACKER V2.0.1 [https://github.com/oxi-dev0/fpacker]
+// FPACKER V2.0.2 [https://github.com/oxi-dev0/fpacker]
 // Copyright (c) 2023 Oxi. All rights reserved.
 #pragma once
 
@@ -16,7 +16,7 @@
 
 namespace FPacker
 {
-	inline bool _ValidPackage(char* buf)
+	inline bool _ValidPackage(const char* buf)
 	{
 		bool valid = true;
 
@@ -31,8 +31,7 @@ namespace FPacker
 		return valid;
 	}
 
-	inline bool Pack(const std::string& fromDir, const std::string& toFile)
-	{
+	inline char* PackToMemory(const std::string& fromDir, size_t& outSize) {
 		// Find files for packing
 		std::vector<std::filesystem::path> foundFiles;
 		for (std::filesystem::recursive_directory_iterator i(fromDir), end; i != end; ++i) {
@@ -42,12 +41,12 @@ namespace FPacker
 		}
 
 		if (foundFiles.size() == 0) {
-			return false;
+			return nullptr;
 		}
 
 		// Create buffer to write data to before dumping to file
 		char* buffer = (char*)malloc(BUFFERSIZE_MIN);
-		if (buffer == nullptr) { return false; }
+		if (buffer == nullptr) { return nullptr; }
 
 		size_t bufferSize = BUFFERSIZE_MIN;
 		size_t initialBufferSize = BUFFERSIZE_MIN;
@@ -73,7 +72,7 @@ namespace FPacker
 				// Create a new, bigger, buffer and write old data to it
 				char* oldBuffer = buffer;
 				buffer = (char*)malloc(bufferSize);
-				if (buffer == nullptr) { free(oldBuffer); return false; }
+				if (buffer == nullptr) { free(oldBuffer); return nullptr; }
 				memcpy(buffer, oldBuffer, oldBufferSize);
 				free(oldBuffer);
 			}
@@ -102,7 +101,7 @@ namespace FPacker
 				// Create a new, bigger, buffer and write old data to it
 				char* oldBuffer = buffer;
 				buffer = (char*)malloc(bufferSize);
-				if (buffer == nullptr) { free(oldBuffer); return false; }
+				if (buffer == nullptr) { free(oldBuffer); return nullptr; }
 				memcpy(buffer, oldBuffer, oldBufferSize);
 				free(oldBuffer);
 			}
@@ -114,12 +113,77 @@ namespace FPacker
 			bufferCursor += fsizeVal;
 		}
 
+		outSize = bufferSize;
+		return buffer;
+	}
+
+	inline bool Pack(const std::string& fromDir, const std::string& toFile)
+	{
+		size_t size{};
+		char* buf = PackToMemory(fromDir, size);
+
+		if (!buf) { return false; }
+
 		// Dump buffer to file
 		std::ofstream fileStream(toFile, std::ios::out | std::ios::binary);
-		fileStream.write(buffer, bufferCursor);
+		fileStream.write(buf, size);
 		fileStream.close();
 
-		free(buffer);
+		free(buf);
+
+		return true;
+	}
+
+	inline bool UnpackFromMemory(const char* buffer, size_t size, const std::string& toDir)
+	{
+		// Validate it is an FPacker package
+		if (size < FPACKER_HEADER_LENGTH) { return false; }
+		if (!_ValidPackage(buffer)) { return false; }
+
+		// Start cursor after magic number
+		size_t cursor = FPACKER_HEADER_LENGTH;
+
+		// While the cursor is not at the end of the file
+		while (cursor < size) {
+			// Write the name size to a variable
+			size_t nameSize = 0;
+			memcpy(&nameSize, buffer + cursor, sizeof(size_t));
+			cursor += sizeof(size_t);
+
+			// Create a buffer for the name data
+			char* nameBuf = (char*)malloc(nameSize + 1);
+			if (nameBuf == nullptr) { return false; }
+
+			// Write the name data to the name buffer
+			memcpy(nameBuf, buffer + cursor, nameSize);
+			nameBuf[nameSize] = '\0';
+			cursor += nameSize;
+
+			// Write the data size to a variable
+			size_t dataSize = 0;
+			memcpy(&dataSize, buffer + cursor, sizeof(size_t));
+			cursor += sizeof(size_t);
+
+			// Create a buffer for the data
+			char* dataBuf = (char*)malloc(dataSize);
+			if (dataBuf == nullptr) { free(nameBuf); return false; }
+
+			// Write the data to the buffer
+			memcpy(dataBuf, buffer + cursor, dataSize);
+			cursor += dataSize;
+
+			// Create directory for the file if needed
+			std::string nameStr = std::string(nameBuf);
+			std::filesystem::create_directories(std::filesystem::path(toDir + "/" + nameStr).remove_filename());
+
+			// Create the file and dump the data to it
+			std::ofstream newFileStream(toDir + "/" + nameStr, std::ios::out | std::ios::binary);
+			newFileStream.write(dataBuf, dataSize);
+			newFileStream.close();
+
+			free(nameBuf);
+			free(dataBuf);
+		}
 
 		return true;
 	}
@@ -142,57 +206,8 @@ namespace FPacker
 		in.read(fileBuf, fsizeVal);
 		in.close();
 		
-		// Validate it is an FPacker package
-		if (fsizeVal < FPACKER_HEADER_LENGTH) { free(fileBuf); return false; }
-		if (!_ValidPackage(fileBuf)) { free(fileBuf); return false; }
-
-		// Start cursor after magic number
-		size_t cursor = FPACKER_HEADER_LENGTH;
-
-		// While the cursor is not at the end of the file
-		while (cursor < fsizeVal) {
-			// Write the name size to a variable
-			size_t nameSize = 0;
-			memcpy(&nameSize, fileBuf + cursor, sizeof(size_t));
-			cursor += sizeof(size_t);
-
-			// Create a buffer for the name data
-			char* nameBuf = (char*)malloc(nameSize+1);
-			if (nameBuf == nullptr) { free(fileBuf); return false; }
-
-			// Write the name data to the name buffer
-			memcpy(nameBuf, fileBuf + cursor, nameSize);
-			nameBuf[nameSize] = '\0';
-			cursor += nameSize;
-
-			// Write the data size to a variable
-			size_t dataSize = 0;
-			memcpy(&dataSize, fileBuf + cursor, sizeof(size_t));
-			cursor += sizeof(size_t);
-
-			// Create a buffer for the data
-			char* dataBuf = (char*)malloc(dataSize);
-			if (dataBuf == nullptr) { free(nameBuf); free(fileBuf); return false; }
-
-			// Write the data to the buffer
-			memcpy(dataBuf, fileBuf + cursor, dataSize);
-			cursor += dataSize;
-
-			// Create directory for the file if needed
-			std::string nameStr = std::string(nameBuf);
-			std::filesystem::create_directories(std::filesystem::path(toDir + "/" + nameStr).remove_filename());
-
-			// Create the file and dump the data to it
-			std::ofstream newFileStream(toDir + "/" + nameStr, std::ios::out | std::ios::binary);
-			newFileStream.write(dataBuf, dataSize);
-			newFileStream.close();
-
-			free(nameBuf);
-			free(dataBuf);
-		}
-		
+		bool res = UnpackFromMemory(fileBuf, fsizeVal, toDir);
 		free(fileBuf);
-
-		return true;
+		return res;
 	}
 }
